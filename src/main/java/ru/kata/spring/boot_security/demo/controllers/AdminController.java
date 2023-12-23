@@ -1,6 +1,5 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -11,7 +10,9 @@ import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Controller
@@ -21,7 +22,6 @@ public class AdminController {
     private UserService userService;
     private RoleService roleService;
 
-    @Autowired
     public AdminController(UserService userService, RoleService roleService) {
         this.userService = userService;
         this.roleService = roleService;
@@ -42,35 +42,52 @@ public class AdminController {
     @GetMapping("/new")
     public String newUser(Model model) {
         model.addAttribute("user", new User());
-        return "admin/form";
+        model.addAttribute("roleSet", roleService.getAllRoles());
+        model.addAttribute("selectedRoles", new ArrayList<Role>());
+        return "admin/form-new";
     }
 
     @PostMapping("/save")
-    public String saveUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult,
-                           @RequestParam("id") Long id) {
+    public String saveUser(@ModelAttribute("user") @Valid User user,
+                           @RequestParam("selectedRoles") List<Long> selectedRoles, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "admin/form";
+            return "admin/form-new";
         }
-        if (id != null) {
-            user.setId(id);
-        }
-        Role role = roleService.getRoleByName("ROLE_USER");
-        Set<Role> userRoles = new HashSet<>();
-        userRoles.add(role);
-        user.setRoles(userRoles);
+        setRolesToUser(selectedRoles, user);
         userService.saveUser(user);
         return "redirect:/admin/users-list";
     }
 
     @GetMapping("/edit")
     public String editUser(@RequestParam("id") long id, Model model) {
-        model.addAttribute("user", userService.getUserById(id));
-        return "admin/form";
+        User user = userService.getUserById(id);
+        model.addAttribute("user", user);
+        model.addAttribute("roleSet", roleService.getAllRoles());
+        return "admin/form-edit";
     }
 
-    @PostMapping("/delete")
-    public String delete(@RequestParam("id") long id) {
+    @PatchMapping("/update")
+    public String updateUser(@ModelAttribute("user") @Valid User user,
+                             @RequestParam("selectedRoles") List<Long> selectedRoles, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "admin/form-edit";
+        }
+        setRolesToUser(selectedRoles, user);
+        userService.saveUser(user);
+        return "redirect:/admin/users-list";
+    }
+
+    @DeleteMapping("/{id}")
+    public String delete(@PathVariable("id") long id) {
         userService.deleteUser(id);
         return "redirect:/admin/users-list";
+    }
+
+    private void setRolesToUser(List<Long> selectedRoles, User user) {
+        Set<Role> userRoles = new HashSet<>();
+        for (Long roleId : selectedRoles) {
+            userRoles.add(roleService.getById(roleId));
+        }
+        user.setRoles(userRoles);
     }
 }

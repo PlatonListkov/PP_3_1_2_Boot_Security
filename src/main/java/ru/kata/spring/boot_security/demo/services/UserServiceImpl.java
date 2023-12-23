@@ -14,7 +14,6 @@ import ru.kata.spring.boot_security.demo.models.User;
 import java.util.List;
 
 @Service
-@Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserDao userDao;
@@ -32,37 +31,34 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userDao.getAllUsers();
     }
 
     @Override
-    @Transactional(readOnly = true)
     public User getUserById(long id) {
         return userDao.getUserById(id);
     }
 
     @Override
+    @Transactional
     public void saveUser(User user) {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userDao.saveUser(user);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public void deleteUser(long id) {
         userDao.deleteUser(id);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public User getUserByUserName(String username) {
         return userDao.getUserByUserName(username);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return getUserByUserName(username);
     }

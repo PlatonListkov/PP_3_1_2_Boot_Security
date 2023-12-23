@@ -1,7 +1,5 @@
 package ru.kata.spring.boot_security.demo;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
@@ -18,15 +16,8 @@ public class InitialDataLoader {
     private UserService userService;
     private RoleService roleService;
 
-    @Autowired
-    @Lazy
-    public void setUserService(UserService userService) {
+    public InitialDataLoader(UserService userService, RoleService roleService) {
         this.userService = userService;
-    }
-
-    @Autowired
-    @Lazy
-    public void setRoleService(RoleService roleService) {
         this.roleService = roleService;
     }
 

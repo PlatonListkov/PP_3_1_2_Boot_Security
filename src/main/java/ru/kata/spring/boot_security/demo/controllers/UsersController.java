@@ -22,7 +22,6 @@ public class UsersController {
 
     @GetMapping("/")
     public String showUserById(Principal principal, Model model) {
-        System.out.println("showUserById");
         model.addAttribute("user", userService.getUserByUserName(principal.getName()));
         return "user/user-page";
     }

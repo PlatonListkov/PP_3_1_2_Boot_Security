@@ -41,13 +41,14 @@ public class User implements UserDetails {
 
     @NotEmpty(message = "Username should not be empty")
     @Size(min = 2, max = 30, message = "Username should be between 2 and 30 characters")
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     private String username;
 
+    @NotEmpty(message = "Password should not be empty")
     @Column(name = "password")
     private String password;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -165,6 +166,8 @@ public class User implements UserDetails {
                 ", age=" + age +
                 ", mail='" + mail + '\'' +
                 ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", roles=" + roles +
                 '}';
     }
 
